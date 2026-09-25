@@ -1,11 +1,17 @@
 # Vì sao chọn lô này?
 
-Trong 50 dòng đứng đầu `outputs/selection_round1.csv`, chọn năm frame bạn sẽ ưu tiên nếu chỉ có
-ngân sách rà năm ảnh. Ghi tên, điểm, thời điểm, thứ tự và lý do; tối thiểu một quyết định phải xét
-ảnh gần trùng hoặc trường hợp model không dự đoán được box: ĐIỀN
+Trong 50 dòng đứng đầu `outputs/selection_round1.csv`, tôi ưu tiên năm frame có điểm cao nhất và có nhiều box "bất định" để tối đa hóa lợi ích của ngân sách rà 5 ảnh. Mục tiêu là chọn các cảnh khó, có nhiều xe và có nhiều vùng mơ hồ, chứ không chỉ chọn các khung hình đẹp hay dễ gõ nhãn.
 
-Ba frame thuộc lô 12 ảnh model chọn và bằng chứng trong CSV/ảnh contact sheet: ĐIỀN
+| Thứ tự | Frame              | Điểm score | Thời điểm |      U |      A |   D | Số box | Bất định | Lý do ưu tiên                                                                                                                                               |
+| -------: | ------------------ | -----------: | -----------: | -----: | -----: | --: | ------: | ----------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|        1 | `frame_0182.jpg` |       0.9591 |        72.8s | 0.9182 |    1.0 | 1.0 |      28 |          18 | Cảnh đông xe, nhiều phương án đuổi theo và che khuất; đây là hình có tín hiệu bất định cao nhất và rất phù hợp để sửa nhãn ngay. |
+|        2 | `frame_0369.jpg` |       0.9324 |       147.6s | 0.9315 | 0.8889 | 1.0 |      43 |          16 | Nhiều xe cùng lúc, ánh sáng và bóng đen khiến box dễ thiếu hoặc dính; hợp với mục tiêu chọn "nhiều xe khó".                                |
+|        3 | `frame_0380.jpg` |       0.9170 |       152.0s | 0.9340 | 0.8333 | 1.0 |      40 |          15 | Cảnh tương tự nhưng có độ đậm của xe/ánh đèn xe, rất dễ model bỏ sót xe ở mép hoặc xe mờ ở xa.                                          |
+|        4 | `frame_0326.jpg` |       0.9155 |       130.4s | 0.9310 | 0.8333 | 1.0 |      39 |          15 | Dải đường đông, nhiều xe gần nhau và xe xuất hiện ở các kích thước khác nhau; giúp kiểm tra cả box small và medium.                       |
+|        5 | `frame_0331.jpg` |       0.9154 |       132.4s | 0.8308 |    1.0 | 1.0 |      47 |          18 | Bản ghi cộng thêm nhiều ô xe và mức nghi ngờ cao; đây là tình huống khó mà model có thể đánh giá sai do ùn tắc và bóng.                |
 
-Một frame có điểm cao nhưng không chọn hoặc một frame có điểm thấp vẫn nên xem, và lý do: ĐIỀN
+Ba frame tiêu biểu trong 12 ảnh model chọn là `frame_0182.jpg`, `frame_0369.jpg` và `frame_0380.jpg`. Chúng đều nằm ở nhóm top 3 và có điểm `score` trên 0.917, đồng thời `n_ambiguous` từ 15 đến 18. Trong ảnh contact sheet, ba cảnh này đều có nhiều xe cùng lúc, nhiều đèn xe và mặt đường tối; vì thế nhãn AI dễ bị thiếu xe ở mép khung hình hoặc gộp hai xe sát nhau. Việc sửa các khung này giúp tăng tính đa dạng và giảm sai lệch trong training set hơn là lấy thêm các cảnh quá dễ.
 
-Điều phép chọn này chưa chứng minh về chất lượng mô hình: ĐIỀN
+Một frame đáng lưu ý là `frame_0372.jpg` (hạng 6, score 0.9101), nhưng mình không chọn vì dù điểm cao, nó giống nhiều cảnh trong nhóm 0369/0380: cùng kiểu đường cao tốc, xe đông và ánh đèn dài, nên thêm vào sẽ tạo "ảnh gần trùng" và mang lại ít thông tin mới. Điều này phù hợp với nguyên tắc chọn mẫu: ưu tiên đa dạng cảnh và độ khó, không chỉ ưu tiên score tuyệt đối.
+
+Điều này không chứng minh mô hình đã tốt. Chỉ xét top 5 theo uncertainty, không phải là đánh giá chất lượng thực tế của model. Số liệu ở `metrics_round0.json` và `metrics_round1.json` cho thấy hiệu suất còn hạn chế: AP50 đã giảm từ 0.7714 xuống 0.7352 sau fine-tune, trong khi recall ở 0.25 giảm xuống 0.134. Nói cách khác, top-k uncertainty chọn ra những cảnh có nhiều thông tin để sửa, nhưng nó không tự động chứng minh model sẽ cải thiện trên test set. Đây mới chỉ là chiến lược lấy mẫu hiệu quả về mặt nhãn học, chứ chưa là kiểm chứng cuối cùng về chất lượng mô hình.
