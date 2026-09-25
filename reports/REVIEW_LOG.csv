@@ -1,0 +1,4 @@
+round,frame_id,object,action,rule_or_reason
+1,frame_0099.jpg,xe 170 ? du?i ?nh ,added,Th?y thân xe và d? ranh gi?i theo GUIDELINE_LABEL.md mà model b? qua
+1,frame_0099.jpg,xe 11 ? du?ng bên trái,edited,xe 11 ? du?ng bên trái có cái bounding box không sát xe nên mình dã v? sát vào
+1,frame_0099.jpg,"xe 8 ? du?ng bên ph?i, phía xa",edited,cái bounding box bao g?m xe 8 và m?t xe d?ng sau nó
